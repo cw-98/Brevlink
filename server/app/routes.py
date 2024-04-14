@@ -5,7 +5,7 @@ from sqlalchemy.exc import IntegrityError
 
 import random
 import string
-from datetime import timedelta
+from datetime import timedelta, datetime
 
 from . import db
 from .models.url import Url
@@ -18,7 +18,6 @@ def create_user():
     email, password = data.get('email'), data.get('password')
     first_name, last_name = data.get('first_name'), data.get('last_name')
     
-    # Validate the data
     if not all([email, password, first_name, last_name]):
         abort(400, description="All fields [email, password, first_name, last_name] are required.")
 
@@ -27,16 +26,18 @@ def create_user():
         abort(400, description="A user with that email already exists.")
 
     # Create new User instance
-    new_user = User(email=email, first_name=first_name, last_name=last_name)
+    new_user: User = User(email=email, first_name=first_name, last_name=last_name)
     new_user.password = password
     
     try:
         # Add the new user to the database
         db.session.add(new_user)
         db.session.commit()
-        
+        access_token = generate_token(email, new_user)
         # Return success response
-        return jsonify({'message': 'User created successfully.', 'user': new_user.to_dict()}), 201
+        return jsonify({'message': 'User created successfully.', 
+                        'user': new_user.to_dict(),
+                        'access_token': access_token}), 201
     except IntegrityError:
         # If there is an issue with the database transaction, roll back
         db.session.rollback()
@@ -51,25 +52,28 @@ def login():
         return jsonify({"error": "Missing email or password"}), 400
 
     # Query the user by email
-    user = User.query.filter_by(email=email).first()
+    user: User = User.query.filter_by(email=email).first()
 
     # Check if user exists and the password is correct
     if user and user.check_password(password):
-        # Login success
-        additional_claims = {
-            "id": user.id,
-            "first_name": user.first_name,
-            "last_name": user.last_name
-        }
-        access_token = create_access_token(identity=email, 
-                                           additional_claims = additional_claims, 
-                                           expires_delta = timedelta(days=1))
+        access_token = generate_token(email, user)
         return jsonify({"message": "Login successful", 
                         "user": user.to_dict(), 
                         "access_token": access_token}), 200
     else:
         # Invalid credentials
         return jsonify({"error": "Invalid email or password"}), 401
+    
+def generate_token(email, user: User):
+    additional_claims = {
+        "id": user.id,
+        "first_name": user.first_name,
+        "last_name": user.last_name
+    }
+    access_token = create_access_token(identity=email, 
+                                           additional_claims = additional_claims, 
+                                           expires_delta = timedelta(days=1))
+    return access_token
     
 def generate_shortened_id(length=6):
     """Generate a random string of fixed length."""
@@ -93,7 +97,8 @@ def shorten_url():
     
     new_url = Url(original_url=original_url,
                   shortened_id= shortened_path,
-                  user_id = user_id)
+                  user_id = user_id,
+                  create_date = datetime.now())
     db.session.add(new_url)
     db.session.commit()
 
