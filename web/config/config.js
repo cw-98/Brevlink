@@ -1,5 +1,9 @@
+const API_BASE_URL = 'http://localhost:5050/api';
+
 const conifg = {
-    baseUrl: 'localhost:5173',
+    apiBaseURL: API_BASE_URL,
+    shortenURL: `${API_BASE_URL}/shorten`,
+    newUser: `${API_BASE_URL}/user`,
 }
 
 export default conifg;

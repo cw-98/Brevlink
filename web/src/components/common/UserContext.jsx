@@ -1,4 +1,6 @@
-import React, { createContext, useState, useContext, useEffect } from 'react';
+import React, { createContext, useState, useContext } from 'react';
+import { useNavigate } from "react-router-dom";
+import Cookies from 'js-cookie';
 
 const UserContext = createContext(null);
 
@@ -6,42 +8,26 @@ export const useUser = () => useContext(UserContext);
 
 export function UserProvider({ children }) {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
-  const [username, setUsername] = useState('');
+  const [user, setUser] = useState('');
+  const navigate = useNavigate();
 
-  useEffect(() => {
-    // Replace with your actual API call to check login status
-    const checkLoginStatus = async () => {
-      try {
-        const response = await fetch('/api/check-login', { credentials: 'include' });
-        const data = await response.json();
-        if (data.isLoggedIn) {
-          setIsLoggedIn(true);
-          setUsername(data.username);
-        }
-      } catch (error) {
-        console.error('Error checking login status:', error);
-      }
-    };
-    
-    // checkLoginStatus();
+  const logIn = (accessToken, _user) => {
     setIsLoggedIn(true);
-    setUsername('ChihChao');
-  }, []);
-
-  const logIn = (user) => {
-    setIsLoggedIn(true);
-    setUsername(user);
+    Cookies.set('accessToken', accessToken, { expires: 1 })
+    setUser(_user);
   };
 
   const logOut = () => {
     setIsLoggedIn(false);
-    setUsername('');
+    setUser(null);
+    Cookies.remove('accessToken');
+    navigate('/');
     // You should also call your API to perform the logout operation
     // fetch('/api/logout', { method: 'POST', credentials: 'include' });
   };
 
   return (
-    <UserContext.Provider value={{ isLoggedIn, username, logIn, logOut }}>
+    <UserContext.Provider value={{ isLoggedIn, user, logIn, logOut }}>
       {children}
     </UserContext.Provider>
   );

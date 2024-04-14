@@ -8,7 +8,7 @@ function Navbar() {
     const [isLoginOpen, setLoginOpen] = useState(false);
     const [isSignupOpen, setSignupOpen] = useState(false);
     const [isDropdownOpen, setDropdownOpen] = useState(false);
-    const { isLoggedIn, username, logOut } = useUser();
+    const { isLoggedIn, user, logOut, logIn } = useUser();
     const dropdownRef = useRef(null);
     
     const openLogin = () => {
@@ -42,9 +42,8 @@ function Navbar() {
         setSignupOpen(false);
     };
 
-    const handleLoginSuccess = (username) => {
-        setIsLoggedIn(true);
-        setUsername(username);
+    const handleModelSuccess = (accessToken, data) => {
+        logIn(accessToken, data)
         setLoginOpen(false); // Close modal on successful login
     };
 
@@ -60,7 +59,7 @@ function Navbar() {
           <nav class="navbar">
               <Link to="/" className='nav-brand'>Brev</Link>
               <div class="nav-items">
-                  <a onClick={toggleDropdown} class="nav-link">{ isLoggedIn ? username : 'Signup'}</a>
+                  <a onClick={toggleDropdown} class="nav-link">{ isLoggedIn ? user.first_name : 'Signup'}</a>
                   {isDropdownOpen && (
                     <div className="dropdown-menu" ref={dropdownRef}>
                         <Link to="/links" className='dropdown-item' onClick={() => setDropdownOpen(false)}>My Links</Link>
@@ -71,8 +70,8 @@ function Navbar() {
               </div>
           </nav>
       </header>
-      <LoginModal isOpen={isLoginOpen} onClose={closeModal} onSwitchModal={openSignup} onLoginSuccess={handleLoginSuccess} />
-      <SignupModal isOpen={isSignupOpen} onClose={closeModal} onSwitchModal={openLogin} />
+      <LoginModal isOpen={isLoginOpen} onClose={closeModal} onSwitchModal={openSignup} onLoginSuccess={handleModelSuccess} />
+      <SignupModal isOpen={isSignupOpen} onClose={closeModal} onSwitchModal={openLogin} onSignupSuccess={handleModelSuccess} />
     </>
     )
 }

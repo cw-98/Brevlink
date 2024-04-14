@@ -1,8 +1,7 @@
 import { useState } from 'react'
 import config from '../../config/config';
 import '../style/App.css'
-
-const { baseUrl } = config;
+import { fetchWithToken } from '../utils/api';
 
 function App() {
   const [url, setUrl] = useState('');
@@ -10,15 +9,18 @@ function App() {
   
   const shortenUrl = async () => {
     try {
-      const response = await fetch(`${baseUrl}/shorten`, {
+      const res = await fetchWithToken(config.shortenURL, {
         method: 'POST',
-        headers: {'Content-Type': 'application/json' },
-        body: JSON.stringify({ url: url }),
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify({ original_url: url }),
       });
-      const data = await response.json();
-      setShortenedUrl(data.shortenedUrl); // Assuming 'data.shortenedUrl' is the shortened URL returned by the API
+      if (!res.ok) {
+        throw new Error(`HTTP error! status: ${res.status}`);
+      }
+      const data = await res.json();
+      setShortenedUrl(data.shortened_id);
     } catch (error) {
-      console.error('Error shortening URL:', error);
+      console.error(error);
       setShortenedUrl('Error shortening URL');
     }
   };
