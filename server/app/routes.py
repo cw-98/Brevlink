@@ -1,13 +1,15 @@
-from flask import request, jsonify, abort, url_for, redirect
+from flask import request, jsonify, abort, redirect
 from flask import current_app as app
-from .models.user import User
-from . import db
-from .models.url import URL
+from flask_jwt_extended import create_access_token, get_jwt, jwt_required
 from sqlalchemy.exc import IntegrityError
-from flask_jwt_extended import create_access_token
-from datetime import timedelta
+
 import random
 import string
+from datetime import timedelta
+
+from . import db
+from .models.url import Url
+from .models.user import User
 
 @app.route('/api/user', methods=['POST'])
 def create_user():
@@ -74,19 +76,24 @@ def generate_shortened_id(length=6):
     return ''.join(random.choice(string.ascii_letters + string.digits) for _ in range(length))
 
 @app.route('/api/shorten', methods=['POST'])
+@jwt_required(optional=True)
 def shorten_url():
-    data = request.json
-    original_url = data.get('original_url')
-    if not original_url:
-        return jsonify({"error": "Missing original_url"}), 400
+    original_url = request.json.get('original_url')
+    if not original_url: return jsonify({"error": "Missing original_url"}), 400
 
-    # Generate unique shortened URL path
     while True:
         shortened_path = generate_shortened_id()
-        if not URL.query.filter_by(shortened_id=shortened_path).first():
+        if not Url.query.filter_by(shortened_id=shortened_path).first():
             break
     
-    new_url = URL(original_url=original_url, shortened_id= shortened_path)
+    user_id = None
+    jwt_payload = get_jwt()
+    user_id = jwt_payload.get('id') if jwt_payload else None
+    print(user_id)
+    
+    new_url = Url(original_url=original_url,
+                  shortened_id= shortened_path,
+                  user_id = user_id)
     db.session.add(new_url)
     db.session.commit()
 
@@ -95,14 +102,29 @@ def shorten_url():
     return jsonify({"shortened_id": full_shortened_url}), 201
 
 
-@app.route('/<shortened_path>')  # Dynamic route to handle shortened URLs
+@app.route('/<shortened_path>')
 def redirect_shortened_url(shortened_path):
-    # Query the database for the original URL using the shortened_path
-    url_entry = URL.query.filter_by(shortened_id=shortened_path).first()
+    url_entry = Url.query.filter_by(shortened_id=shortened_path).first()
     
-    if url_entry is not None:
-        # Redirect to the original URL
-        return redirect(url_entry.original_url)
-    else:
-        # If the shortened_path does not exist, return a 404 error
-        abort(404)
+    if url_entry is not None: return redirect(url_entry.original_url)
+    else: abort(404)
+
+
+@app.route('/api/urls', methods=['GET'])
+@jwt_required()
+def get_urls():
+    # Get the user_id from the JWT claims
+    user_id = get_jwt().get('id')
+    
+    # Query the database for URLs associated with the user_id
+    urls = Url.query.filter_by(user_id=user_id).all()
+    response_data = [
+            {
+                "id": url.id,
+                "shortened_id": url.shortened_id,
+                "create_date": url.create_date.strftime('%Y-%m-%d %H:%M:%S')
+            }
+            for url in urls
+        ]
+    
+    return jsonify(response_data), 200

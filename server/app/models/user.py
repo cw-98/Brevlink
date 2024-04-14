@@ -11,6 +11,7 @@ class User(db.Model):
     first_name = db.Column(db.String(255), nullable=False)
     last_name = db.Column(db.String(255), nullable=False)
     create_date = db.Column(db.DateTime, default=datetime.now())
+    urls = db.relationship('Url', backref='user', lazy=True)
 
     @property
     def password(self):
