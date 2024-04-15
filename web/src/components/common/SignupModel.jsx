@@ -1,6 +1,6 @@
 import '../../style/login.css';
 import { useState } from 'react'
-import { useUser } from './UserContext';
+import { useUser } from '../../hooks/useAuth';
 import config from '../../../config/config';
 
 function SignupModal({ isOpen, onClose, onSwitchModal, onSignupSuccess }) {

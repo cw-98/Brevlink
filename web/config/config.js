@@ -4,6 +4,7 @@ const conifg = {
     apiBaseURL: API_BASE_URL,
     shortenURL: `${API_BASE_URL}/shorten`,
     newUser: `${API_BASE_URL}/user`,
+    getUrls: `${API_BASE_URL}/urls`,
 }
 
 export default conifg;

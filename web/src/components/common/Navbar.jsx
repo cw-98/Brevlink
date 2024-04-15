@@ -1,7 +1,7 @@
 import { useState, useRef, useEffect } from 'react'
 import SignupModal from './SignupModel';
 import LoginModal from './LoginModel';
-import { useUser } from './UserContext';
+import { useUser } from '../../hooks/useAuth';
 import { Link } from 'react-router-dom';
 
 function Navbar() {

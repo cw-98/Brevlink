@@ -126,6 +126,7 @@ def get_urls():
     response_data = [
             {
                 "id": url.id,
+                "original_url": url.original_url,
                 "shortened_id": url.shortened_id,
                 "create_date": url.create_date.strftime('%Y-%m-%d %H:%M:%S')
             }
