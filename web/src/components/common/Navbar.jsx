@@ -64,7 +64,7 @@ function Navbar() {
                     <div className="dropdown-menu" ref={dropdownRef}>
                         <Link to="/links" className='dropdown-item' onClick={() => setDropdownOpen(false)}>My Links</Link>
                         <a className="dropdown-item">Settings</a>
-                        <a className="dropdown-item" onClick={logOut}>logout</a>
+                        <a className="dropdown-item" onClick={() => { setDropdownOpen(false); logOut(); }}>logout</a>
                     </div>
                    )}
               </div>
