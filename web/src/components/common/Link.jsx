@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react'
 import '../../style/links.css'; // Make sure to create this CSS file
 import { useUser } from '../../hooks/useAuth';
 import { fetchWithToken } from '../../utils/api';
+import DeleteModal from './DeleteModal';
 import conifg from '../../../config/config';
 
 function LinksTable() {
@@ -9,7 +10,20 @@ function LinksTable() {
   const [links, setLinks] = useState([]); // State to store fetched links
   const [loading, setLoading] = useState(false); // State to manage loading status
   const [error, setError] = useState(''); // State to manage error message
-  
+  const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
+  const [selectedLink, setSelectedLink] = useState(null);
+
+  const openDeleteModal = (link) => {
+    setSelectedLink(link);
+    setIsDeleteModalOpen(true);
+  };
+
+  const closeDeleteModal = (is_delete = false) => {
+    console.log(is_delete);
+    setIsDeleteModalOpen(false);
+    if (is_delete == true) getUrls();
+  };
+
   useEffect(() => {
     getUrls();
   }, [id]);
@@ -54,12 +68,17 @@ function LinksTable() {
               <td>{link.create_date}</td>
               <td>
                     <button>Edit</button>
-                    <button>Delete</button>
+                    <button onClick={() => openDeleteModal(link)} >Delete</button>
               </td>
             </tr>
           ))}
         </tbody>
       </table>
+      <DeleteModal
+        isOpen={isDeleteModalOpen}
+        onClose= {closeDeleteModal}
+        link={selectedLink}
+      />
     </div>
   );
 }

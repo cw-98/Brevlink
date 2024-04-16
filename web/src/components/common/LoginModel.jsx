@@ -22,7 +22,7 @@ function LoginModal({ isOpen, onClose, onSwitchModal, onLoginSuccess }) {
 
       if (res.ok) {
         const data = await res.json();
-        onLoginSuccess(data.access_token, data.user); // Adjust according to your API response structure  
+        onLoginSuccess(data.access_token, data.user);
         onClose();
       } else {
         console.error('Login failed:', await res.text());

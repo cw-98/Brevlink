@@ -134,3 +134,17 @@ def get_urls():
         ]
     
     return jsonify(response_data), 200
+
+@app.route('/api/urls/<int:url_id>', methods=['DELETE'])
+@jwt_required()
+def delete_url(url_id):
+    current_user_id = get_jwt().get('id')
+
+    url_to_delete = Url.query.filter_by(id=url_id, user_id=current_user_id).first()
+
+    if url_to_delete:
+        db.session.delete(url_to_delete)
+        db.session.commit()
+        return jsonify({'message': 'URL deleted successfully'}), 200
+    else:
+        return jsonify({'message': 'URL not found or not authorized to delete'}), 404

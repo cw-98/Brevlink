@@ -6,6 +6,7 @@ const conifg = {
     newUser: `${API_BASE_URL}/user`,
     getUrls: `${API_BASE_URL}/urls`,
     login: `${API_BASE_URL}/login`,
+    deleteUrl: `${API_BASE_URL}/urls`
 }
 
 export default conifg;
