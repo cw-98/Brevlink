@@ -75,7 +75,7 @@ def generate_token(email, user: User):
                                            expires_delta = timedelta(days=1))
     return access_token
     
-def generate_shortened_id(length=6):
+def generate_shortened_id(length=7):
     """Generate a random string of fixed length."""
     return ''.join(random.choice(string.ascii_letters + string.digits) for _ in range(length))
 
