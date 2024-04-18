@@ -38,7 +38,9 @@ function App() {
             onChange={(e) => setUrl(e.target.value)}
             />
             <button onClick = {shortenUrl} class="submit-btn">Shorten</button>
-            {shortenedUrl && <div className="shortened-url-result">{shortenedUrl}</div>}
+            {shortenedUrl && <div className="shortened-url-result">
+              <a href={shortenedUrl}>{shortenedUrl}</a>
+            </div>}
         </div>
       </main>
     </>
