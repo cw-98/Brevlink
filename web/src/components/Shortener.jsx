@@ -11,7 +11,9 @@ function App() {
     try {
       const res = await fetchWithToken(config.shortenURL, {
         method: 'POST',
-        headers: {'Content-Type': 'application/json'},
+        headers: {
+          'Content-Type': 'application/json',
+        },
         body: JSON.stringify({ original_url: url }),
       });
       if (!res.ok) {

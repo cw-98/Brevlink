@@ -1,17 +1,20 @@
+import os
+
 class Config(object):
     """Base config, uses staging database server."""
     DEBUG = False
-    APP_PORT = 5050
     TESTING = False
-    DB_USER = 'user'
-    DB_PASSWORD = '123456'
-    HOST = 'localhost'
-    PORT = '3306'
-    DB_NAME = 'brev'
+    APP_PORT = os.getenv('APP_PORT', 5050)
+    DB_USER = os.getenv('DB_USER', 'user')
+    DB_PASSWORD = os.getenv('DB_PASSWORD', '123456')
+    DB_HOST = os.getenv('DB_HOST', 'localhost')
+    DB_PORT = os.getenv('DB_PORT', '3306')
+    DB_NAME = os.getenv('DB_NAME', 'brev')
+    FRONTEND_ORIGIN = os.getenv('FRONTEND_ORIGIN', 'http://localhost:5000')
     SQLALCHEMY_TRACK_MODIFICATIONS = False
     @staticmethod
     def SQLALCHEMY_DATABASE_URI():
-        return f'mysql+pymysql://{Config.DB_USER}:{Config.DB_PASSWORD}@{Config.HOST}:{Config.PORT}/{Config.DB_NAME}'
+        return f'mysql+pymysql://{Config.DB_USER}:{Config.DB_PASSWORD}@{Config.DB_HOST}:{Config.DB_PORT}/{Config.DB_NAME}'
 
 
 class ProductionConfig(Config):

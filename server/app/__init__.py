@@ -9,7 +9,7 @@ db = SQLAlchemy()
 
 def create_app():
     app = Flask(__name__)
-    CORS(app, resources={r"/api/*": {"origins": "http://localhost:5173"}})
+    CORS(app, resources={r"/api/*": {"origins": Config.FRONTEND_ORIGIN}})
     app.config['SQLALCHEMY_DATABASE_URI'] = Config.SQLALCHEMY_DATABASE_URI()
     app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
     app.config['JWT_SECRET_KEY'] = 'your-jwt-secret-key'
@@ -21,6 +21,4 @@ def create_app():
         from . import routes
         db.create_all()  # Optionally create tables
         return app
-
-    # Your route imports should come after the db initialization
     
