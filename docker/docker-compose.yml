@@ -21,7 +21,7 @@ services:
       - "5050:5050"
     environment:
       DB_HOST: mysql
-      FRONTEND_ORIGIN: http://web:5000
+      FRONTEND_ORIGIN: http://localhost:5000
     depends_on:
       - mysql
     restart: always
